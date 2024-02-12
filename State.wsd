@@ -1,0 +1,65 @@
+@startuml
+AttackState -> StatePrincipal
+ScanState-> StatePrincipal
+
+StatePrincipal : State : attack/scan
+AttackState : State : Attack
+ScanState : State : Scan
+
+@enduml
+
+@startuml
+SpecialAgent-> StateMachine: doAction()
+StateMachine--> State : doAction()
+State --> ScanState : doAction()
+ScanState --> State : setState(Patrol)
+State --> StateMachine: doAction()
+StateMachine--> SpecialAgent: doAction(Patrol)
+
+SpecialAgent-> StateMachine: doAction()
+StateMachine--> State : doAction()
+State --> AttackState :doAction()
+AttackState --> State : setState(Attack)
+State --> StateMachine: doAction()
+StateMachine--> SpecialAgent: doAction (Attack)
+
+@enduml
+
+
+@startuml
+participant main.py
+participant SpecialAgent
+participant Agent
+participant StateMachine
+participant State
+participant ScanState
+participant AttackState
+
+main.py -> SpecialAgent : Instanciation spécial d'un agent
+SpecialAgent -> Agent: Instanciation Agent
+SpecialAgent -> StateMachine: Instancier StateMachine
+StateMachine -> SpecialAgent: affectation de l'instance dans attribute fsm de l'agent
+SpecialAgent -> StateMachine: Set fsm à état initial self.__fsm.setState(ScanState(...))
+StateMachine -> ScanState: instancier ScanState
+ScanState -> State: Instancier State via super()\n dans constructeur de ScanState
+SpecialAgent -> main.py: affectation de l'instance dans agent
+ScanState -> StateMachine: Affectation actualState de stateMachine
+
+main.py -> Agent: Appel Agent.update()
+Agent -> SpecialAgent: Appel self.onUpdate()
+SpecialAgent -> StateMachine: self.__fsm.doAction()
+StateMachine -> State: self.__actualState.doAction()
+State -> ScanState: doAction()
+ScanState -> ScanState: Regarde si ennemi\nsi non déplacer en ronde\nsi oui changer état
+ScanState -> StateMachine: setState(AttackState(...)) sur StateMachine
+
+main.py -> Agent: Appel Agent.update()
+Agent -> SpecialAgent: Appel self.onUpdate()
+SpecialAgent -> StateMachine: self.__fsm.doAction()
+StateMachine -> State: self.__actualState.doAction()
+State -> ScanState: doAction()
+AttackState -> AttackState : Regarde si ennemi\nsi non déplacer en ronde\nsi oui changer état
+AttackState -> StateMachine: setState(ScanState(...)) sur StateMachine
+
+
+@enduml
