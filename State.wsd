@@ -1,11 +1,14 @@
 @startuml
-AttackState -> StatePrincipal
-ScanState-> StatePrincipal
+AttackState -> Agent
+ScanState-> Agent
+State -> StateMachine
+Agent -> State
 
-StatePrincipal : State : attack/scan
-AttackState : State : Attack
-ScanState : State : Scan
-
+State: doAction()\nsetState()
+AttackState : doAction()
+ScanState : doAction()
+StateMachine : doAction()
+Agent : doAction()
 @enduml
 
 @startuml
